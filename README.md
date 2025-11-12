@@ -1,181 +1,175 @@
-💹 Financial Ratio Explanation Tutor — Backend (FastAPI)
-📘 Overview
+Financial Ratio Explanation Tutor — Backend
+1. Overview
 
-The Financial Ratio Explanation Tutor is an intelligent financial analysis backend built using FastAPI.
-It processes uploaded Balance Sheets and Profit & Loss Statements (P&L), calculates key financial ratios,
-and provides AI-powered explanations using Google Gemini 2.5 Flash.
+This backend is the analytical engine for the Financial Ratio Explanation Tutor project.
+It processes uploaded financial data (single or dual CSVs), computes financial ratios, and generates AI-based explanations using Google Gemini.
+The backend exposes multiple endpoints that can be consumed by a frontend client (Streamlit in this case).
 
-It serves as the backend engine for the Streamlit Frontend, powering features such as:
+2. Objectives
 
-Automated ratio computation 📊
+Parse balance sheet and profit & loss (P&L) data.
 
-AI-driven ratio explanations 🤖
+Compute essential financial ratios from raw CSV files.
 
-Financial health summary generation 💬
+Use AI (Gemini) to generate human-understandable explanations.
 
-Interactive Q&A with Gemini Chat 💡
+Expose REST endpoints for analysis, explanation, and chat interaction.
 
-🧠 Key Features
-Feature	Description
-📄 CSV Upload Support	Accepts single combined CSV or separate Balance Sheet and P&L files.
-📊 Automated Ratio Computation	Calculates common financial ratios like Gross Margin, Net Profit Margin, Current Ratio, Debt-Equity, and DSCR.
-🧮 Smart Data Parsing	Extracts financial fields dynamically (works with slightly varied column names).
-🤖 AI-Powered Explanations	Uses Gemini API to explain each ratio in plain English.
-💬 Chat Interface	Allows interactive Q&A — users can ask “What is DSCR?” or “Why is my current ratio low?”
-🧾 Detailed JSON Response	Returns clean JSON outputs for frontend integration.
-⚙️ Tech Stack
+Support both single combined and dual (separate) CSV upload workflows.
+
+3. Architecture Overview
+
+The backend is built on a modular architecture using FastAPI.
+Each major process is divided into separate functional modules:
+
+Layer	Function
+main.py	FastAPI application entry point and API routing
+financial_parser.py	Handles CSV data extraction and ratio calculations
+requirements.txt	Dependencies
+.env	Environment variable for Gemini API key
+sample_financials.csv	Example test data
+
+Data flow between modules:
+
+Client Upload → FastAPI Endpoint → CSV Parser → Ratio Calculator → Gemini Explanation → JSON Response
+
+4. Technologies Used
 Component	Technology
 Language	Python 3.10+
 Framework	FastAPI
 AI Model	Google Gemini 2.5 Flash
-Server	Uvicorn
-Libraries	pandas, python-dotenv, google-generativeai, uvicorn, fastapi, pydantic
-Environment	Local or Cloud (e.g., Render, Railway, AWS EC2)
-🧱 Folder & File Structure
-📦 backend
-│
-├── main.py                     # FastAPI main app
-├── financial_parser.py         # Handles CSV parsing & ratio calculations
-├── requirements.txt            # Dependencies
-├── .env.example                # Template for your Gemini API key
-├── sample_financials.csv       # Example input file for testing
-└── README.md                   # Project documentation
+Libraries	pandas, python-dotenv, google-generativeai, uvicorn
+Server	Uvicorn (ASGI)
+Output Format	JSON
+5. API Endpoints
+5.1 /
 
-🧩 Key Backend Endpoints
-Endpoint	Method	Description	Input	Output
-/	GET	Health check	—	{ "message": "Financial Ratio Tutor Backend is running!" }
-/analyze/	POST	Upload and analyze a single combined CSV	file: CSV	JSON (ratios + explanations)
-/analyze_dual/	POST	Upload separate Balance Sheet and P&L CSVs	balance.csv, pnl.csv	JSON (ratios + explanations)
-/explain/	POST	Get AI-generated explanations for ratios	{ "ratios": {...} }	{ "explanation": "..." }
-/chat/	POST	Chat-style interface with Gemini AI	{ "message": "...", "ratios": {...} }	{ "reply": "..." }
-🧮 Supported Financial Ratios
-Ratio	Formula	Description
-Gross Margin	(Revenue − COGS) / Revenue	Measures core profitability before expenses.
-Net Profit Margin	Net Profit / Revenue	Indicates how much profit remains from revenue.
-Current Ratio	Current Assets / Current Liabilities	Shows liquidity and short-term financial health.
-Debt-Equity Ratio	Total Debt / Shareholder Equity	Evaluates financial leverage.
-DSCR (Debt Service Coverage Ratio)	Operating Income / Debt Obligations	Measures ability to cover debt payments.
-🔐 Environment Variables
+Method: GET
+Purpose: Health check endpoint.
+Response:
 
-Create a .env file (from .env.example) in your backend directory:
+{"message": "Financial Ratio Tutor Backend is running!"}
 
+5.2 /analyze/
+
+Method: POST
+Purpose: Analyze a single combined financial CSV.
+Input: file (CSV file)
+Output:
+
+{
+  "ratios": {"Gross Margin": 0.45, "Net Profit Margin": 0.20, ...},
+  "status": {"Gross Margin": "good", ...},
+  "explanations": {"Gross Margin": "Healthy margin ..."}
+}
+
+5.3 /analyze_dual/
+
+Method: POST
+Purpose: Analyze separate P&L and Balance Sheet CSV files.
+Input:
+
+pnl: Profit & Loss CSV
+
+balance: Balance Sheet CSV
+Output: Same as /analyze/.
+
+5.4 /explain/
+
+Method: POST
+Purpose: Request Gemini to explain ratios.
+Input:
+
+{"ratios": {"Gross Margin": 0.4, "Current Ratio": 2.5}}
+
+
+Output:
+
+{"explanation": "Gross Margin indicates strong pricing efficiency..."}
+
+5.5 /chat/
+
+Method: POST
+Purpose: Allow Q&A-style interaction with Gemini (for ratio terms or insights).
+Input:
+
+{"message": "What is DSCR?", "ratios": {"DSCR": 12.2}}
+
+
+Output:
+
+{"reply": "DSCR measures the company's ability to service its debt."}
+
+6. Key Ratios Computed
+Ratio	Formula	Significance
+Gross Margin	(Revenue - COGS) / Revenue	Profitability before expenses
+Net Profit Margin	Net Profit / Revenue	Overall profitability
+Current Ratio	Current Assets / Current Liabilities	Liquidity measure
+Debt-Equity Ratio	Total Debt / Shareholder Equity	Leverage and financial stability
+DSCR	Operating Income / Debt Obligations	Debt service capacity
+7. Environment Configuration
+.env File
 GEMINI_API_KEY=your_google_gemini_api_key_here
 
 
-You can get your key from the Google AI Studio
+Obtain an API key from Google AI Studio
 .
 
-🚀 How to Run Locally
-1️⃣ Clone the Project
-git clone https://github.com/yourusername/financial-ratio-tutor.git
-cd financial-ratio-tutor/backend
-
-2️⃣ Install Dependencies
+8. Installation and Setup
+Step 1: Install dependencies
 pip install -r requirements.txt
 
-
-If you’re missing FastAPI or Uvicorn, install them manually:
-
-pip install fastapi uvicorn google-generativeai python-dotenv pandas
-
-3️⃣ Configure API Key
-
-Copy .env.example → .env and update:
-
-GEMINI_API_KEY=your_actual_gemini_key
-
-4️⃣ Run the FastAPI Server
+Step 2: Run the FastAPI server
 uvicorn main:app --reload
 
+Step 3: Verify the server
 
-✅ Backend URL: http://127.0.0.1:8000
+Visit:
 
-✅ Docs URL: http://127.0.0.1:8000/docs
+API root → http://127.0.0.1:8000
 
-🔍 Sample Test (Using sample_financials.csv)
-curl -X POST "http://127.0.0.1:8000/analyze/" \
--F "file=@sample_financials.csv"
+Docs → http://127.0.0.1:8000/docs
 
+9. Data Flow
 
-Expected Output:
+File Upload
+User uploads either:
 
-{
-  "ratios": {
-    "Gross Margin": 0.45,
-    "Net Profit Margin": 0.25,
-    "Current Ratio": 2.3,
-    "Debt-Equity Ratio": 0.4,
-    "DSCR": 5.2
-  },
-  "status": {
-    "Gross Margin": "good",
-    "Net Profit Margin": "good"
-  },
-  "explanations": {
-    "Gross Margin": "Healthy margin — indicates efficient production and strong pricing."
-  }
-}
+One combined financial CSV
 
-🧠 How the AI Explanation Works
-Step	Action
-1️⃣	User uploads CSVs (either single or dual).
-2️⃣	Backend parses financial data via financial_parser.py.
-3️⃣	Ratios are computed and validated for missing/invalid data.
-4️⃣	Results are sent to the Gemini API with a custom financial prompt.
-5️⃣	Gemini generates explanations and insights in natural language.
-6️⃣	JSON response is sent back to the frontend.
-🧰 Example Prompt Sent to Gemini
-You are a financial tutor. Explain the meaning and interpretation of these financial ratios in simple terms:
-Gross Margin: 0.40
-Net Profit Margin: 0.35
-Current Ratio: 2.5
-Debt-Equity Ratio: 0.3
-DSCR: 10.2
+Two separate CSVs (P&L and Balance Sheet)
 
-Provide one paragraph per ratio, ending with actionable improvement suggestions.
+File Processing
+The parser:
 
-🧾 Example AI Output
-Gross Margin (0.40): A 40% margin shows strong control over production costs...
-Net Profit Margin (0.35): Indicates excellent profitability...
-Current Ratio (2.5): Suggests the company has ample liquidity...
-Debt-Equity Ratio (0.3): Low leverage, implying a stable capital structure...
-DSCR (10.2): The company can easily cover its debt obligations...
+Reads CSVs using pandas
 
-🧩 API Documentation
+Normalizes column names
 
-After running the backend, you can explore:
+Extracts key metrics (revenue, COGS, current assets, liabilities, etc.)
 
-Docs Type	URL
-Swagger UI	http://127.0.0.1:8000/docs
+Ratio Calculation
+Mathematical operations performed for all key ratios.
+Invalid or missing values are handled gracefully with "—" placeholders.
 
-ReDoc	http://127.0.0.1:8000/redoc
+AI Explanation
+Ratios are formatted into a prompt and sent to Gemini.
+Gemini returns plain-language explanations and improvement suggestions.
 
-Both provide an interface to test APIs interactively.
+Response Formation
+The results (ratios, statuses, explanations) are bundled into a structured JSON response.
 
-🧑‍💻 Developer Notes
+Frontend Consumption
+Streamlit frontend displays the data in cards, charts, and text sections.
 
-This backend is designed to integrate seamlessly with the Streamlit frontend.
+10. Future Extensions
 
-Handles both single and dual file uploads.
+Add trend-based ratio comparison (multi-year analysis).
 
-Built to be extensible — more ratios or AI models can be added easily.
+Include cash flow and efficiency ratios.
 
-Ideal for hackathons, financial education apps, or enterprise dashboards.
+Integrate external financial benchmarks.
 
-🏁 Future Enhancements
+Enable database persistence for uploaded reports.
 
-✅ Add support for Cash Flow Ratios
-✅ Implement trend analysis (multi-year comparison)
-✅ Add industry benchmarking using public datasets
-✅ Deploy via Render / Railway / AWS
-
-👨‍💻 Contributors
-
-Team 150
-
-SB Solutions Hackathon 2025
-
-🏆 Acknowledgments
-
-Special thanks to Sairajsri Business Solutions Pvt. Ltd.
-for hosting the SB Solutions Hackathon 2025 and inspiring innovative AI-based financial tools.
+Support user authentication and API tokens.
